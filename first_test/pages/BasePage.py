@@ -1,4 +1,4 @@
-from selenium.common.exceptions import NoSuchElementException
+from selenium.common.exceptions import NoSuchElementException, TimeoutException
 from selenium.webdriver import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
@@ -16,9 +16,12 @@ class BasePage:
         self.driver = driver
         self.base_url = "https://192.168.1.1"
 
-    def find_element(self, locator, time=10):
-        return WebDriverWait(self.driver, time).until(EC.presence_of_element_located(locator),
-                                                      message=f"Can't find element by locator {locator}")
+    def find_element(self, locator, time=3):
+        try:
+            element = WebDriverWait(self.driver, time).until(EC.presence_of_element_located(locator))
+        except TimeoutException:
+            return False
+        return element
 
     def go_to_ui(self):
         return self.driver.get(self.base_url)
